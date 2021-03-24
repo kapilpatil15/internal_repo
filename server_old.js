@@ -8,9 +8,6 @@ const express = require('express');
 // https://www.npmjs.com/package/body-parser
 const bodyParser = require('body-parser');
 
-// bring in repository
-const db = require('./repository');
-
 // create the server
 const app = express();
 
@@ -19,12 +16,16 @@ app.use(bodyParser.json());
 
 // mock events data - for a real solution this data should be coming 
 // from a cloud data store
-//const mockEvents = {
-//    events: [
-//        { title: 'an event', id: 1, description: 'something really cool' },
-//        { title: 'another event', id: 2, description: 'something even cooler' }
-//    ]
-// };
+const mockEvents = {
+    events: [
+        { title: 'an event', id: 1, description: 'something really cool' },
+        { title: 'another event', id: 2, description: 'something even cooler' }
+    ]
+};
+
+
+
+
 // health endpoint - returns an empty array
 app.get('/', (req, res) => {
     res.json([]);
@@ -38,16 +39,8 @@ app.get('/version', (req, res) => {
 
 // mock events endpoint. this would be replaced by a call to a datastore
 // if you went on to develop this as a real application.
-//app.get('/events', (req, res) => {
-//    res.json(mockEvents);
-//});
-
 app.get('/events', (req, res) => {
-    db.getEvents()
-    .then((data) => {
-        console.log(data);
-        res.json(data);
-    });
+    res.json(mockEvents);
 });
 
 // Adds an event - in a real solution, this would insert into a cloud datastore.
@@ -55,20 +48,15 @@ app.get('/events', (req, res) => {
 // this will produce unexpected behavior in a stateless kubernetes cluster. 
 app.post('/event', (req, res) => {
     // create a new object from the json data and add an id
-    //const ev = { 
-    //    title: req.body.title, 
-    //    description: req.body.description,
-    //    id : mockEvents.events.length + 1
-    // }
+    const ev = { 
+        title: req.body.title, 
+        description: req.body.description,
+        id : mockEvents.events.length + 1
+     }
     // add to the mock array
-   // mockEvents.events.push(ev);
+    mockEvents.events.push(ev);
     // return the complete array
-   // res.json(mockEvents);
-   db.addEvent(req)
-   .then((data) => {
-    console.log(data);
-    res.json(data);
-    });
+    res.json(mockEvents);
 });
 
 app.use((err, req, res, next) => {
